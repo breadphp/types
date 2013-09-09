@@ -1,0 +1,26 @@
+{
+	"name" : "bread/types",
+	"description" : "Bread types library",
+	"type" : "library",
+	"authors" : [{
+			"name" : "Giovanni Lovato",
+			"email" : "heruan@aldu.net"
+		}
+	],
+	"keywords" : [
+		"bread",
+		"types"
+	],
+	"homepage" : "https://github.com/breadphp/promises",
+	"license" : [
+		"CC-BY-3.0"
+	],
+	"require" : {
+		"php" : ">=5.4"
+	},
+	"autoload" : {
+		"psr-0" : {
+			"Bread\\Types" : "src"
+		}
+	}
+}
