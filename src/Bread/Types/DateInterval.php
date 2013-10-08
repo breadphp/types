@@ -51,28 +51,14 @@ class DateInterval extends \DateInterval
     public static function getIntervalSpecification(\DateInterval $interval)
     {
         self::normalize($interval);
-        $intervalSpecification = '';
-        if ($interval->y) {
-            $intervalSpecification .= $interval->y . 'Y';
-        }
-        if ($interval->m) {
-            $intervalSpecification .= $interval->m . 'M';
-        }
-        if ($interval->d) {
-            $intervalSpecification .= $interval->d . 'D';
-        }
-        if ($interval->h || $interval->i || $interval->s) {
-            $intervalSpecification .= 'T';
-        }
-        if ($interval->h) {
-            $intervalSpecification .= $interval->h . 'H';
-        }
-        if ($interval->i) {
-            $intervalSpecification .= $interval->i . 'M';
-        }
-        if ($interval->s) {
-            $intervalSpecification .= $interval->s . 'S';
-        }
-        return $intervalSpecification ? 'P' . $intervalSpecification : null;
+        $intervalSpecification = 'P';
+		$intervalSpecification .= $interval->y . 'Y';
+		$intervalSpecification .= $interval->m . 'M';
+		$intervalSpecification .= $interval->d . 'D';
+		$intervalSpecification .= 'T';
+		$intervalSpecification .= $interval->h . 'H';
+		$intervalSpecification .= $interval->i . 'M';
+		$intervalSpecification .= $interval->s . 'S';
+        return $intervalSpecification;
     }
 }
