@@ -14,7 +14,23 @@ class DateInterval extends \DateInterval
     {
         return static::getSeconds($this);
     }
-    
+
+    public static function getDays($from, $to)
+    {
+        return intval(($to->getTimestamp()-$from->getTimestamp())/(60*60*24));
+    }
+
+    /**
+     * @param string $period "$from-$to";  0 (for Sunday) through 6 (for Saturday)
+     */
+    public static function isInPeriod($period, DateTime $date)
+    {
+        $dayOfWeek = (int) $date->format('w');
+        $from = (int) explode('-', $period)[0];
+        $to = (int) explode('-', $period)[1];
+        return $dayOfWeek >= $from && $dayOfWeek <= $to;
+    }
+
     public static function getSeconds(\DateInterval $interval)
     {
         return ($interval->y * 365 * 24 * 60 * 60) + ($interval->m * 30 * 24 * 60 * 60) + ($interval->d * 24 * 60 * 60) + ($interval->h * 60 * 60) + ($interval->i * 60) + ($interval->s);
@@ -41,7 +57,7 @@ class DateInterval extends \DateInterval
         $interval = parent::createFromDateString($time);
         return static::createFromDateInterval($interval);
     }
-    
+
     public static function createFromDateInterval(\DateInterval $interval)
     {
         $intervalSpecification = static::getIntervalSpecification($interval);
