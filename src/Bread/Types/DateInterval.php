@@ -17,18 +17,23 @@ class DateInterval extends \DateInterval
 
     public static function getDays($from, $to)
     {
-        return intval(($to->getTimestamp()-$from->getTimestamp())/(60*60*24));
+        return (strtotime($to->format('Y-m-d')) - strtotime($from->format('Y-m-d')))/(60*60*24);
     }
 
     /**
+     *
      * @param string $period "$from-$to";  0 (for Sunday) through 6 (for Saturday)
+     * @param DateTime $date
      */
     public static function isInPeriod($period, DateTime $date)
     {
+
+        $min = clone $date->setTime((int) $period['minHour'], (int) $period['minMinute']);
+        $max = clone $date->setTime((int) $period['maxHour'], (int) $period['maxMinute']);
         $dayOfWeek = (int) $date->format('w');
-        $from = (int) explode('-', $period)[0];
-        $to = (int) explode('-', $period)[1];
-        return $dayOfWeek >= $from && $dayOfWeek <= $to;
+        $from = (int) explode('-', $period['days'])[0];
+        $to = (int) explode('-', $period['days'])[1];
+        return $dayOfWeek >= $from && $dayOfWeek <= $to && $date<=$max && $date>=$min;
     }
 
     public static function getSeconds(\DateInterval $interval)
