@@ -20,6 +20,32 @@ class DateInterval extends \DateInterval
         return (strtotime($to->format('Y-m-d')) - strtotime($from->format('Y-m-d'))) / (60 * 60 * 24);
     }
 
+    public static function getSecondsInPeriod(DateTime $from, DateTime $to, $period)
+    {
+        $days = static::getDays($from, $to);
+        $seconds = 0;
+        if ($days === 0) {
+            return $to->diff($from)->toSeconds();
+        } elseif ($days > 1) {
+            $last = clone $from;
+            $day = 1;
+            $min = (new DateTime())->setTime((int) $period['minHour'], (int) $period['minMinute']);
+            $max = (new DateTime())->setTime((int) $period['maxHour'], (int) $period['maxMinute']);
+            $secondsDaily = $max->diff($min)->toSeconds();
+            while ($day < $days) {
+                if (DateInterval::isInPeriod($period, $last->modify('+1 day'))) {
+                    $seconds += $secondsDaily;
+                }
+                $day ++;
+            }
+        }
+        $last = clone $from;
+        $minToday = (new DateTime())->setTime((int) $period['minHour'], (int) $period['minMinute']);
+        $maxLast = $last->setTime((int) $period['maxHour'], (int) $period['maxMinute']);
+        $seconds += $maxLast->diff($from)->toSeconds() + $to->diff($minToday)->toSeconds();
+        return $seconds;
+    }
+
     /**
      *
      * @param string $period
