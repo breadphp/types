@@ -17,23 +17,23 @@ class DateInterval extends \DateInterval
 
     public static function getDays($from, $to)
     {
-        return (strtotime($to->format('Y-m-d')) - strtotime($from->format('Y-m-d')))/(60*60*24);
+        return (strtotime($to->format('Y-m-d')) - strtotime($from->format('Y-m-d'))) / (60 * 60 * 24);
     }
 
     /**
      *
-     * @param string $period "$from-$to";  0 (for Sunday) through 6 (for Saturday)
+     * @param string $period
+     *            from-to,minHour:minMinute-maxHour:maxMinute
      * @param DateTime $date
      */
     public static function isInPeriod($period, DateTime $date)
     {
-
         $min = clone $date->setTime((int) $period['minHour'], (int) $period['minMinute']);
         $max = clone $date->setTime((int) $period['maxHour'], (int) $period['maxMinute']);
         $dayOfWeek = (int) $date->format('w');
         $from = (int) explode('-', $period['days'])[0];
         $to = (int) explode('-', $period['days'])[1];
-        return $dayOfWeek >= $from && $dayOfWeek <= $to && $date<=$max && $date>=$min;
+        return $dayOfWeek >= $from && $dayOfWeek <= $to && $date <= $max && $date >= $min;
     }
 
     public static function getSeconds(\DateInterval $interval)
@@ -73,13 +73,13 @@ class DateInterval extends \DateInterval
     {
         self::normalize($interval);
         $intervalSpecification = 'P';
-		$intervalSpecification .= $interval->y . 'Y';
-		$intervalSpecification .= $interval->m . 'M';
-		$intervalSpecification .= $interval->d . 'D';
-		$intervalSpecification .= 'T';
-		$intervalSpecification .= $interval->h . 'H';
-		$intervalSpecification .= $interval->i . 'M';
-		$intervalSpecification .= $interval->s . 'S';
+        $intervalSpecification .= $interval->y . 'Y';
+        $intervalSpecification .= $interval->m . 'M';
+        $intervalSpecification .= $interval->d . 'D';
+        $intervalSpecification .= 'T';
+        $intervalSpecification .= $interval->h . 'H';
+        $intervalSpecification .= $interval->i . 'M';
+        $intervalSpecification .= $interval->s . 'S';
         return $intervalSpecification;
     }
 }
