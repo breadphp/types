@@ -40,7 +40,8 @@ class DateInterval extends \DateInterval
             }
         }
         $last = clone $from;
-        $minToday = (new DateTime())->setTime((int) $period['minHour'], (int) $period['minMinute']);
+        $first = clone $to;
+        $minToday = $first->setTime((int) $period['minHour'], (int) $period['minMinute']);
         $maxLast = $last->setTime((int) $period['maxHour'], (int) $period['maxMinute']);
         $seconds += $maxLast->diff($from)->toSeconds() + $to->diff($minToday)->toSeconds();
         return $seconds;
