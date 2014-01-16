@@ -20,9 +20,12 @@ class DateInterval extends \DateInterval
         return (strtotime($to->format('Y-m-d')) - strtotime($from->format('Y-m-d'))) / (60 * 60 * 24);
     }
 
-    public static function getSecondsInPeriod(DateTime $from, DateTime $to, $period)
+    public static function getSecondsInPeriod($from, $to, $period)
     {
         $seconds = 0;
+        if(!$from || !$to) {
+            return $seconds;
+        }
         $to = static::setRealTo($from, $to, $period);
         $days = static::getDays($from, $to);
         if ($days === 0) {
