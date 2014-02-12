@@ -23,41 +23,44 @@ class DateInterval extends \DateInterval
     public static function getSecondsInPeriod($from, $to, $period)
     {
         $seconds = 0;
-        if(!$from || !$to) {
-            return $seconds;
-        }
-        $to = static::setRealTo($from, $to, $period);
-        $days = static::getDays($from, $to);
-        if ($days === 0) {
-            return $to->diff($from)->toSeconds();
-        } elseif ($days > 1) {
-            $last = new DateTime($from->format('Y-m-d H:i:s'));
-            $day = 1;
-            $min = (new DateTime())->setTime((int) $period['minHour'], (int) $period['minMinute']);
-            $max = (new DateTime())->setTime((int) $period['maxHour'], (int) $period['maxMinute']);
-            $secondsDaily = $max->diff($min)->toSeconds();
-            while ($day < $days) {
-                if (DateInterval::isInPeriod($period, $last->modify('+1 day'))) {
-                    $seconds += $secondsDaily;
+        if($from && $to) {
+            $to = static::setReal($to, $period);
+            $from = static::setReal($from, $period);
+            $days = static::getDays($from, $to);
+            if ($days === 0) {
+                return $to->diff($from)->toSeconds();
+            } elseif ($days > 1) {
+                $last = new DateTime($from->format('Y-m-d H:i:s'));
+                $day = 1;
+                $secondsDaily = ((((int) $period['maxHour'] - (int) $period['minHour']) * 60) + ((int) $period['maxMinute'] - (int) $period['minMinute'])) * 60;
+                while ($day < $days) {
+                    if (DateInterval::isInPeriod($period, $last->modify('+1 day'))) {
+                        $seconds += $secondsDaily;
+                    }
+                    $day ++;
                 }
-                $day ++;
             }
+            $minToday = (new DateTime($to->format('Y-m-d H:i:s')))->setTime((int) $period['minHour'], (int) $period['minMinute']);
+            $maxLast = (new DateTime($from->format('Y-m-d H:i:s')))->setTime((int) $period['maxHour'], (int) $period['maxMinute']);
+            $seconds += $maxLast->diff($from)->toSeconds() + $to->diff($minToday)->toSeconds();
         }
-        $minToday = (new DateTime($to->format('Y-m-d H:i:s')))->setTime((int) $period['minHour'], (int) $period['minMinute']);
-        $maxLast = (new DateTime($from->format('Y-m-d H:i:s')))->setTime((int) $period['maxHour'], (int) $period['maxMinute']);
-        $seconds += $maxLast->diff($from)->toSeconds() + $to->diff($minToday)->toSeconds();
         return $seconds;
     }
 
-    public static function setRealTo(DateTime $from, DateTime $to, $period)
+    public static function setReal(DateTime $date, $period)
     {
-        if(!DateInterval::isInPeriod($period, $to)) {
-            $to->setTime((int) $period['maxHour'], (int) $period['maxMinute']);
+        if(!DateInterval::isInTime($period, $date)) {
+            $min = (new DateTime($date->format('Y-m-d H:i:s')))->setTime((int) $period['minHour'], (int) $period['minMinute']);
+            if($date <= $min) {
+                $date->setTime((int) $period['minHour'], (int) $period['minMinute']);
+            } else {
+                $date->setTime((int) $period['maxHour'], (int) $period['maxMinute']);
+            }
         }
-        if(!DateInterval::isInPeriod($period, $to)) {
-            return static::setRealTo($from, $to->modify('-1 day'), $period);
+        if(!DateInterval::isInPeriod($period, $date)) {
+            return static::setReal($date->modify('-1 day')->setTime((int) $period['maxHour'], (int) $period['maxMinute']), $period);
         }
-        return $to;
+        return $date;
     }
 
     /**
@@ -68,13 +71,24 @@ class DateInterval extends \DateInterval
      */
     public static function isInPeriod($period, DateTime $date)
     {
-
-        $min = (new DateTime($date->format('Y-m-d H:i:s')))->setTime((int) $period['minHour'], (int) $period['minMinute']);
-        $max = (new DateTime($date->format('Y-m-d H:i:s')))->setTime((int) $period['maxHour'], (int) $period['maxMinute']);
         $dayOfWeek = (int) $date->format('w');
         $from = (int) explode('-', $period['days'])[0];
         $to = (int) explode('-', $period['days'])[1];
-        return $dayOfWeek >= $from && $dayOfWeek <= $to && $date <= $max && $date >= $min;
+        return $dayOfWeek >= $from && $dayOfWeek <= $to;
+    }
+
+    /**
+     *
+     * @param string $period
+     *            from-to,minHour:minMinute-maxHour:maxMinute
+     * @param DateTime $date
+     */
+    public static function isInTime($period, DateTime $date)
+    {
+
+        $min = (new DateTime($date->format('Y-m-d H:i:s')))->setTime((int) $period['minHour'], (int) $period['minMinute']);
+        $max = (new DateTime($date->format('Y-m-d H:i:s')))->setTime((int) $period['maxHour'], (int) $period['maxMinute']);
+        return $date >= $min && $date <= $max;
     }
 
     public static function getSeconds(\DateInterval $interval)
