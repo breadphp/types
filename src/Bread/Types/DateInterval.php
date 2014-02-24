@@ -24,8 +24,8 @@ class DateInterval extends \DateInterval
     {
         $seconds = 0;
         if($from && $to) {
-            $to = static::setReal($to, $period);
-            $from = static::setReal($from, $period);
+            $to = static::setReal(clone $to, $period);
+            $from = static::setReal(clone $from, $period);
             $days = static::getDays($from, $to);
             if ($days === 0) {
                 return $to->diff($from)->toSeconds();
